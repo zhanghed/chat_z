@@ -4,9 +4,9 @@ import threading
 import time
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-ip = socket.gethostbyname(socket.gethostname()
+ip = socket.gethostbyname(socket.gethostname())
 print(ip)
-server.bind(ip, 9090))
+server.bind((ip, 9090))
 server.listen(5)
 
 #存放已连接的对象
