@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, url_for, request, redirect, render_template
 import config
-
+print(__name__)
 app = Flask(__name__)
 app.config.from_object(config)
 
