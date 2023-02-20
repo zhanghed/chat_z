@@ -5,6 +5,7 @@ def get_ip():
     st = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     st.connect(('10.255.255.255', 1))
     ip = st.getsockname()[0]
+    print(ip)
     st.close()
     return ip
 
