@@ -54,9 +54,14 @@ class State_thread(threading.Thread):
 
 
 def get_ip():
-    temp = socket.gethostbyname_ex(socket.gethostname())[2]
-    arr = [i for i in temp]
-    print(arr)
+    # 获取本机ip
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('8.8.8.8', 80))
+        ip = s.getsockname()[0]
+    finally:
+        s.close()
+        return ip
 
 
 if __name__ == "__main__":
@@ -65,8 +70,8 @@ if __name__ == "__main__":
     clients = {}
     messages = queue.Queue()
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind(ip, 9090)
-    server.listen(10)
+    server.bind((ip, 9090))
+    server.listen(20)
     print(server)
     Send_thread("Send_thread").start()
     State_thread("State_thread").start()
