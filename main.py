@@ -6,7 +6,6 @@ class Win(object):
     def __init__(self):
         self.win = Tk()
         self.win.title('测试')
-        self.win.iconbitmap('favicon.ico')
         self.win.resizable(0, 0)
 
         # 位置居中

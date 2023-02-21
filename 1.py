@@ -4,71 +4,68 @@ import threading
 import time
 
 
-class Server_thread(threading.Thread):
+class Send_thread(threading.Thread):
+    # 发送线程
     def __init__(self, name):
         threading.Thread.__init__(self, name=name)
-        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.bind((socket.gethostbyname(socket.gethostname()), 9090))
-        self.server.listen(5)
-        self.clients = {}
-        self.messages = queue.Queue()
-        self.send = Send_thread("Send_thread", self.clients,  self.messages)
-        self.send.start()
 
     def run(self):
         while True:
-            client, addr = self.server.accept()
-            if not str(client) in self.clients:
-                recv = Recv_thread("Recv_thread", client,  self.messages)
-                recv.start()
-                self.clients[client] = {"client": client,
-                                        "addr": addr,
-                                        "ip": client.getpeername()[0],
-                                        "recv": recv}
-            time.sleep(1)
-
-
-class Send_thread(threading.Thread):
-    def __init__(self, name,  clients, messages):
-        threading.Thread.__init__(self, name=name)
-        self.clients = clients
-        self.messages = messages
-
-    def run(self):
-        while True:
-            if not self.messages.empty():
-                data = server.messages.get_nowait()
-                for client in self.clients:
+            if not messages.empty():
+                data = messages.get_nowait()
+                for client in clients:
                     client.send(bytes(str(data).encode('utf-8')))
             time.sleep(1)
 
+
 class Recv_thread(threading.Thread):
-    def __init__(self, name,  client, messages):
+    # 接收线程
+    def __init__(self, name, client):
         threading.Thread.__init__(self, name=name)
         self.client = client
-        self.messages = messages
 
     def run(self):
         while True:
-            data = self.client.recv(1024).decode('utf-8')
-            self.messages.put({"client": self.client,
-                              "data": data})
+            try:
+                data = self.client.recv(1024).decode('utf-8')
+                messages.put({"client": self.client, "data": data})
+            except Exception as e:
+                print(e, self.client)
+                self.client.close()
+                clients.pop(self.client)
+                break
             time.sleep(1)
 
 
-server = Server_thread("Server_thread")
-server.start()
+class State_thread(threading.Thread):
+    # 状态线程
+    def __init__(self, name):
+        threading.Thread.__init__(self, name=name)
+        self.n = 1
 
-n = 1
-while True:
-    print(
-        "--", n, ";",
-        "线程:", len(threading.enumerate()), ";"
-        "客户端:", len(server.clients), ";"
-    )
-    # if server.clients:
-    #     if not server.messages.empty():
-    #         a = server.messages.get_nowait()
-    #         print(a)
-    n = n+1
-    time.sleep(5)
+    def run(self):
+        while True:
+            print("***", n,
+                  "客户端：", len(clients),
+                  "线程：", len(threading.enumerate()),
+                  threading.enumerate())
+            n = n+1
+            time.sleep(5)
+
+
+if __name__ == "__main__":
+    # 主线程
+    clients = {}
+    messages = queue.Queue()
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind((socket.gethostbyname(socket.gethostname()), 9090))
+    server.listen(10)
+    Send_thread("Send_thread").start()
+    State_thread("State_thread").start()
+    while True:
+        client, addr = server.accept()
+        if not str(client) in clients:
+            recv = Recv_thread("Recv_thread", client)
+            recv.start()
+            clients[client] = {"client": client, "recv": recv}
+        time.sleep(1)
