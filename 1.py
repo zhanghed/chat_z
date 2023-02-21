@@ -45,21 +45,29 @@ class State_thread(threading.Thread):
 
     def run(self):
         while True:
-            print("***", n,
+            print("***", self.n,
                   "客户端：", len(clients),
                   "线程：", len(threading.enumerate()),
                   threading.enumerate())
-            n = n+1
+            self.n = self.n+1
             time.sleep(5)
+
+
+def get_ip():
+    temp = socket.gethostbyname_ex(socket.gethostname())[2]
+    arr = [i for i in temp]
+    print(arr)
 
 
 if __name__ == "__main__":
     # 主线程
+    ip = get_ip()
     clients = {}
     messages = queue.Queue()
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind((socket.gethostbyname(socket.gethostname()), 9090))
+    server.bind(ip, 9090)
     server.listen(10)
+    print(server)
     Send_thread("Send_thread").start()
     State_thread("State_thread").start()
     while True:
