@@ -74,9 +74,9 @@ if __name__ == "__main__":
     Send_thread("Send_thread").start()
     n = 1
     while True:
-        print("***", n,
-              "客户端：", len(clients),
-              "线程：", len(threading.enumerate()),
+        print("*", n, ";",
+              "客户端：", len(clients), ";",
+              "线程：", len(threading.enumerate()), ";",
               threading.enumerate())
         n = n+1
         time.sleep(5)
