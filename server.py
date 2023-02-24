@@ -37,31 +37,28 @@ class Recv_thread(threading.Thread):
             time.sleep(1)
 
 
-class State_thread(threading.Thread):
-    # 状态线程
+class Connect_thread(threading.Thread):
+    # 连接线程
     def __init__(self, name):
         threading.Thread.__init__(self, name=name)
-        self.n = 1
 
     def run(self):
         while True:
-            print("***", self.n,
-                  "客户端：", len(clients),
-                  "线程：", len(threading.enumerate()),
-                  threading.enumerate())
-            self.n = self.n+1
-            time.sleep(5)
+            client, addr = server.accept()
+            if not str(client) in clients:
+                recv = Recv_thread("Recv_thread", client)
+                recv.start()
+                clients[client] = {"client": client, "recv": recv}
+            time.sleep(1)
 
 
 def get_ip():
     # 获取本机ip
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(('8.8.8.8', 80))
-        ip = s.getsockname()[0]
-    finally:
-        s.close()
-        return ip
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(('8.8.8.8', 80))
+    ip = s.getsockname()[0]
+    s.close()
+    return ip
 
 
 if __name__ == "__main__":
@@ -73,12 +70,13 @@ if __name__ == "__main__":
     server.bind((ip, 9090))
     server.listen(20)
     print(server)
+    Connect_thread("Connect_thread").start()
     Send_thread("Send_thread").start()
-    State_thread("State_thread").start()
+    n = 1
     while True:
-        client, addr = server.accept()
-        if not str(client) in clients:
-            recv = Recv_thread("Recv_thread", client)
-            recv.start()
-            clients[client] = {"client": client, "recv": recv}
-        time.sleep(1)
+        print("***", n,
+              "客户端：", len(clients),
+              "线程：", len(threading.enumerate()),
+              threading.enumerate())
+        n = n+1
+        time.sleep(5)
