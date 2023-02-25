@@ -1,6 +1,7 @@
 import socket
 import threading
 import subprocess
+import queue
 from tkinter import *
 import time
 import os
@@ -43,9 +44,10 @@ class Win():  # 窗体
     def fun_send(self):  # 发送消息
         t = '自己: ' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())+'\n'
         self.mes_list["state"] = NORMAL
-        self.mes_list.insert(END, t)
-        self.mes_list.insert(END, self.mes_txt.get('0.0', END))
-        self.mes_txt.delete('0.0', END)
+        messages.put({"client":server, "data": self.mes_txt.get('0.0', END)})
+        # self.mes_list.insert(END, t)
+        # self.mes_list.insert(END, self.mes_txt.get('0.0', END))
+        # self.mes_txt.delete('0.0', END)
         self.mes_list["state"] = DISABLED
 
 
@@ -56,11 +58,10 @@ class Send_thread(threading.Thread):  # 发送线程
 
     def run(self):
         while True:
-            msg = input(':')
-            if msg == 'exit':
-                server.close()
-                break
-            server.send(bytes(msg.encode('utf-8')))
+            if not messages.empty():
+                data = messages.get_nowait()
+                if server:
+                    server.send(bytes(str(data).encode('utf-8')))
 
 
 class Recv_thread(threading.Thread):  # 接收线程
@@ -97,8 +98,9 @@ def get_server():  # 获取服务
 
 
 if __name__ == "__main__":  # 主线程
+    messages = queue.Queue()
+    server = get_server()
+    Send_thread("Send_thread").start()
+    Recv_thread("Recv_thread").start()
     win = Win().win
     win.mainloop()
-    # server = get_server()
-    # Send_thread("Send_thread").start()
-    # Recv_thread("Recv_thread").start()
