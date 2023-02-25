@@ -1,21 +1,13 @@
-import subprocess
+import ipaddress
 import socket
+
+# ['192.168.192.1', '192.168.101.1', '192.168.0.13',"192.1.4.245"]
+
+import os
 import re
 
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.connect(('8.8.8.8', 80))
-ip = s.getsockname()[0]
-s.close()
 
-
-cmd = subprocess.run(["arp", "-a"], capture_output=True,
-                     universal_newlines=True)
-a = str(cmd).split(",")
-b = a[3].replace("stdout='", "").replace("\\n", "\n")
-c = b.split("接口:")
-
-for i in c:
-    if i.find(str(ip))>0:
-        temp=re.findall(r'(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})\.(?:[\d]{1,3})',i)
-        print(temp)
-        
+str_ = os.popen('ipconfig').read()
+print(str_)
+this_ip = re.search(r'以太网:[\d\D]+?IPv4.*?:\s([\d.]*?)\n',str_).group(1)
+print('ip:',this_ip)

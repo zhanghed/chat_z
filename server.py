@@ -2,7 +2,8 @@ import socket
 import queue
 import threading
 import time
-
+import os
+import re
 
 class Send_thread(threading.Thread):
     # 发送线程
@@ -54,10 +55,8 @@ class Connect_thread(threading.Thread):
 
 def get_ip():
     # 获取本机ip
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(('8.8.8.8', 80))
-    ip = s.getsockname()[0]
-    s.close()
+    s= os.popen('ipconfig').read()
+    ip = re.search(r'以太网:[\d\D]+?IPv4.*?:\s([\d.]*?)\n',s).group(1)
     return ip
 
 

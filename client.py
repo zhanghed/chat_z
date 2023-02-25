@@ -1,6 +1,7 @@
 import socket
 import threading
 import subprocess
+import os
 import re
 
 
@@ -32,10 +33,8 @@ class Recv_thread(threading.Thread):
 
 def get_ip():
     # 获取服务ip
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(('8.8.8.8', 80))
-    ip = s.getsockname()[0]
-    s.close()
+    s= os.popen('ipconfig').read()
+    ip = re.search(r'以太网:[\d\D]+?IPv4.*?:\s([\d.]*?)\n',s).group(1)
 
     cmd = subprocess.run(["arp", "-a"], capture_output=True,
                          universal_newlines=True)
