@@ -6,7 +6,6 @@ import os
 import re
 
 
-
 class Win():  # 窗体
     def __init__(self):
         # 界面
@@ -14,7 +13,6 @@ class Win():  # 窗体
         self.win = win[0]
         self.mes_list = win[1]
         self.mes_txt = win[2]
-        self.friend_list = win[3]
         # 服务
         self.get_server()
         # 接收线程
@@ -25,37 +23,26 @@ class Win():  # 窗体
         win.title('Tkker')
         win.resizable(0, 0)
         # 位置居中
-        c_x = (win.winfo_screenwidth()-500)/2
-        c_y = (win.winfo_screenheight()-500)/2
-        win.geometry("%dx%d+%d+%d" % (500, 500, c_x, c_y))
+        c_x = (win.winfo_screenwidth()-400)/2
+        c_y = (win.winfo_screenheight()-430)/2
+        win.geometry("%dx%d+%d+%d" % (400, 430, c_x, c_y))
         # 消息列表
         frame_1 = Frame(width=380, height=270, bg='white')
-        frame_1.grid(row=0, column=0, padx=5, pady=5)
+        frame_1.grid(row=0, column=0, padx=10, pady=10)
         frame_1.grid_propagate(0)
         mes_list = Text(frame_1, width=53, height=20,
                         bd=0, padx=5, pady=5, state=DISABLED)
         mes_list.grid(row=0, column=0)
-        # 信息输入框
+        # 信息输入框/发送按钮
         frame_2 = Frame(width=380, height=130, bg='white')
-        frame_2.grid(row=1, column=0, padx=5, pady=5)
+        frame_2.grid(row=1, column=0, padx=0, pady=0)
         frame_2.grid_propagate(0)
         mes_txt = Text(frame_2, width=53,
-                       height=9, bd=0, padx=5, pady=5)
+                       height=7, bd=0, padx=5, pady=5)
         mes_txt.grid()
-        # 好友列表
-        frame_3 = Frame(width=100, height=490, bg='white')
-        frame_3.grid(row=0, column=1, rowspan=3, padx=5, pady=5)
-        frame_3.grid_propagate(0)
-        friend_list = Text(frame_3, width=13,
-                           height=37, bd=0, padx=5, pady=5)
-        friend_list.grid()
-        # 发送按钮
-        frame_11 = Frame(width=380, height=70, bg='white')
-        frame_11.grid(row=2, column=0, padx=5, pady=5)
-        frame_11.grid_propagate(0)
-        mes_send = Button(frame_11, text=('发送'), command=self.fun_send)
-        mes_send.grid()
-        return (win, mes_list, mes_txt, friend_list)
+        mes_send = Button(frame_2, text=(' 发 送 '), command=self.fun_send)
+        mes_send.grid(sticky='e')
+        return (win, mes_list, mes_txt)
 
     def fun_send(self):  # 发送消息
         self.mes_list["state"] = NORMAL
